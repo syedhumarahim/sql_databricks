@@ -6,8 +6,8 @@ from databricks import sql
 from dotenv import load_dotenv
 
 
-def extract(url="https://raw.githubusercontent.com/syedhumarahim/syedhumarahim-dataset_medical_records/blob/main/medical_records_1.csv",
-    url_2="https://raw.githubusercontent.com/syedhumarahim/syedhumarahim-dataset_medical_records/blob/main/medical_records_others.csv",
+def extract(url="https://github.com/syedhumarahim/syedhumarahim-dataset_medical_records/blob/main/medical_records_1.csv",
+    url_2="https://github.com/syedhumarahim/syedhumarahim-dataset_medical_records/blob/main/medical_records_others.csv",
     file_path="data/medical_records.csv",
     file_path_2="data/medical_records_others.csv"):
     if not os.path.exists("data"):
@@ -60,7 +60,7 @@ def query(query):
 
 
 # load the csv file and insert into databricks
-def load(dataset="data/medical_records.csv", dataset_2="data/medical_records_others.csv"):
+def load(dataset="medical_records.csv", dataset_2="medical_records_others.csv"):
     payload = pd.read_csv(dataset, delimiter=",", skiprows=1)
     payload2 = pd.read_csv(dataset_2, delimiter=",", skiprows=1)
     load_dotenv(dotenv_path='.env')
