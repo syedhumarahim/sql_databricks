@@ -57,5 +57,6 @@ ORDER BY s1.ParentalSupport DESC;
 
 
 test_extract()
+
 test_load()
 test_query()
