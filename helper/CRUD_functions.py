@@ -1,124 +1,122 @@
-
-import sqlite3
-import csv
-# Function to load database from CSV file
-def load_medical_database(dataset="data/medical_records.csv", encoding="utf-8"):
-    data = csv.reader(open(dataset, newline="", encoding=encoding), delimiter=",")
-    next(data)  # Skip header
-    conn = sqlite3.connect("medical_records_DB.db")
-    c = conn.cursor()
-    c.execute("DROP TABLE IF EXISTS medical_records")
-    c.execute(
-        """
-        CREATE TABLE medical_records (
-            patient_id INTEGER,
-            name TEXT,
-            date_of_birth TEXT,
-            gender TEXT,
-            medical_conditions TEXT,
-            medications TEXT,
-            allergies TEXT,
-            last_appointment_date TEXT
-        )
-    """
-    )
-    # insert data
-    c.executemany(
-        """
-        INSERT INTO medical_records (
-        patient_id, name, date_of_birth, gender, medical_conditions, medications, allergies, last_appointment_date)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
-        data,
-    )
-    print("database loaded")
-
-    print("Running Test Query:")
-    
-    print("Fetching patients with asthma")
-    c.execute("SELECT * FROM medical_records WHERE medical_conditions LIKE '%asthma%';") #fetching patients with asthma
-    conn.commit()
-    conn.close()
-    return "medical_records_DB.db"
+import os
+import requests
+import pandas as pd
+import os
+from databricks import sql
+from dotenv import load_dotenv
 
 
-# Create operation
-def create_record(database, data):
-    conn = sqlite3.connect(database)
-    cursor = conn.cursor()
-    cursor.execute(
-        "INSERT INTO medical_records (patient_id, name, date_of_birth, gender, medical_conditions, medications, allergies, last_appointment_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", 
-        data
-        )
-    
-    
-    conn.commit()
+def extract(url="https://github.com/syedhumarahim/syedhumarahim-dataset_medical_records/blob/main/medical_records_1.csv",
+    url_2="https://github.com/syedhumarahim/syedhumarahim-dataset_medical_records/blob/main/medical_records_others.csv",
+    file_path="data/medical_records_1.csv",
+    file_path_2="data/medical_records_others.csv"):
+    if not os.path.exists("data"):
+        os.makedirs("data")
+    with requests.get(url) as r:
+        with open(file_path, "wb") as f:
+            f.write(r.content)
+    with requests.get(url_2) as r:
+        with open(file_path_2, "wb") as f:
+            f.write(r.content)
+    df = pd.read_csv(file_path)
+    df_2 = pd.read_csv(file_path_2)
 
-    cursor.execute("SELECT * FROM medical_records")
-    all_records = cursor.fetchall()
-    print("Database content (create):")
-    for record in all_records:
-        print(record)
+    df_subset = df.head(100)
+    df_subset_2 = df_2.head(100)
 
-    conn.close()
-
-    print("Record has been successfully created.")
-
-
-# Read operation
-def read_records(database):
-    conn = sqlite3.connect(database)
-    cursor = conn.cursor()
-
-    cursor.execute("SELECT * FROM medical_records WHERE medical_conditions LIKE '%asthma%';") #fetching patients with asthma
-    results = cursor.fetchall()
-
-    conn.close()
-
-    print("Database content (read):")
-    for record in results:
-        print(record)
-
-    return results
+    df_subset.to_csv(file_path, index=False)
+    df_subset_2.to_csv(file_path_2, index=False)
+    return file_path, file_path_2
 
 
-# Update operation
-def update_record(database, patient_id, new_data):
-    conn = sqlite3.connect(database)
-    cursor = conn.cursor()
 
-    cursor.execute(
-        "UPDATE medical_records SET name = ?, date_of_birth = ?, gender = ?, medical_conditions = ?, medications = ?, allergies = ?, last_appointment_date = ? WHERE patient_id = ?",
-        (*new_data, patient_id)
-    )
-
-    conn.commit()
-
-    # cursor.execute("SELECT * FROM medical_records")
-    all_records = cursor.fetchall()
-    print("Database content (update):")
-    for record in all_records:
-        print(record)
-
-    conn.close()
-
-    print("Record has been successfully updated.")
+# Define a global variable for the log file
+LOG_FILE = "query_log.md"
 
 
-# Delete operation
-def delete_record(database, patient_id):
-    conn = sqlite3.connect(database)
-    cursor = conn.cursor()
+def add_to_markdown(query, result="none"):
+    """adds to a query markdown file"""
+    with open(LOG_FILE, "a") as file:
+        file.write(f"```sql\n{query}\n```\n\n")
+        file.write(f"```response from databricks\n{result}\n```\n\n")
 
-    cursor.execute("DELETE FROM medical_records WHERE patient_id=?", (patient_id,))
 
-    conn.commit()
+def query(query):
+    load_dotenv()
+    server_h = os.getenv("SERVER_HOSTNAME")
+    access_token = os.getenv("ACCESS_TOKEN")
+    http_path = "/sql/1.0/warehouses/2d6f41451e6394c0"
+    with sql.connect(
+        server_hostname=server_h,
+        http_path=http_path,
+        access_token=access_token,
+    ) as connection:
+        c = connection.cursor()
+        c.execute(query)
+        result = c.fetchall()
+    c.close()
+    add_to_markdown(f"{query}", result)
 
-    # cursor.execute("SELECT * FROM medical_records")
-    all_records = cursor.fetchall()
-    print("Database content (delete):")
-    for record in all_records:
-        print(record)
 
-    conn.close()
 
-    print("Record has been successfully deleted.")
+# load the csv file and insert into databricks
+def load(dataset="data/medical_records_1.csv", dataset_2="data/medical_records_others.csv"):
+    payload = pd.read_csv(dataset, delimiter=",", skiprows=1)
+    payload2 = pd.read_csv(dataset_2, delimiter=",", skiprows=1)
+    load_dotenv(dotenv_path='.env')
+    server_hostname = os.getenv("SERVER_HOSTNAME")
+    access_token = os.getenv("ACCESS_TOKEN")
+    http_path = "/sql/1.0/warehouses/2d6f41451e6394c0"
+    with sql.connect(
+        server_hostname=server_hostname,
+        http_path=http_path,
+        access_token=access_token,
+    ) as connection:
+        c = connection.cursor()
+
+        # Create and load first table
+        c.execute("SHOW TABLES FROM default LIKE 'medical_records_1*'")
+        result = c.fetchall()
+        if not result:
+            c.execute(
+                """
+                CREATE TABLE IF NOT EXISTS MedicalRecords1DB (
+                    patient_id int,
+                    name string,
+                    date_of_birth string,
+                    gender string,
+                    medical_conditions string,
+                    medications string,
+                    allergies string,
+                    last_appointment_date string
+                )
+                """
+            )
+            for _, row in payload.iterrows():
+                convert = tuple(row)
+                c.execute(f"INSERT INTO MedicalRecords1DB VALUES {convert}")
+
+        # Create and load second table
+        c.execute("SHOW TABLES FROM default LIKE 'medical_records_others*'")
+        result = c.fetchall()
+        if not result:
+            c.execute(
+                """
+                CREATE TABLE IF NOT EXISTS MedicalRecordsOthersDB (
+                    patient_id int,
+                    name string,
+                    date_of_birth string,
+                    gender string,
+                    medical_conditions string,
+                    medications string,
+                    allergies string,
+                    last_appointment_date string
+                )
+                """
+            )
+            for _, row in payload2.iterrows():
+                convert = tuple(row)
+                c.execute(f"INSERT INTO MedicalRecordsOthersDB VALUES {convert}")
+        c.close()
+
+    return "success"

@@ -30,7 +30,7 @@ def test_load_medical_database():
 def test_create_record():
     # Sample data for a new record
     patient_data = (
-        99,
+        999,  # Unique patient_id
         "Test Patient",
         "1980-01-01",
         "M",
@@ -44,7 +44,7 @@ def test_create_record():
     # Verify that the record was created
     conn = sqlite3.connect("medical_records_DB.db")
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM medical_records WHERE patient_id = ?", (99,))
+    cursor.execute("SELECT * FROM medical_records WHERE patient_id = ?", (999,))
     created_record = cursor.fetchone()
 
     assert created_record is not None, "Failed to create the record"
@@ -107,7 +107,7 @@ def test_delete_record():
     db_file = "medical_records_DB.db"
 
     # ID of the record to delete
-    patient_id = 99
+    patient_id = 999
 
     delete_record(db_file, patient_id)
 
@@ -123,8 +123,36 @@ def test_delete_record():
     print("Record deleted successfully.")
 
 
+def test_query():
+    """Test general query for medical records"""
+    result = subprocess.run(
+        [
+            "python",
+            "python_main.py",
+            "query",
+            """
+            WITH common_patients AS (
+                SELECT patient_id, name, COUNT(*) AS appointment_count
+                FROM medical_records
+                GROUP BY patient_id, name
+            )
+            SELECT patient_id, name, appointment_count
+            FROM common_patients
+            ORDER BY appointment_count DESC
+            LIMIT 10;
+            """,
+        ],
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    assert result.returncode == 0
+
+
+
 test_load_medical_database()
 test_create_record()
 test_read_records()
 test_update_record()
 test_delete_record()
+test_query()

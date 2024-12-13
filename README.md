@@ -2,7 +2,7 @@
 
 # Interacting with SQL Database using Python Script
 
-This is the sixth Assignment for Data Engineering on Interacting with SQL Database.
+This is the Assignment for Data Engineering on Interacting with SQL Database.
 
 # Medical Records CRUD Operations with SQLite
 
