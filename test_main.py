@@ -1,78 +1,62 @@
-import subprocess
+from mylib.extract import extract
+from mylib.transform import load_database
+from mylib.query import query
+import os
+from dotenv import load_dotenv
+from databricks import sql
+
 
 def test_extract():
-    """Test extract()"""
-    result = subprocess.run(
-        ["python", "main.py", "extract"],
-        capture_output=True,
-        text=True,
-        check=True,
-    )
-    assert result.returncode == 0
-    assert "Extracting data..." in result.stdout
+    ext = extract()
+    assert ext is not None
 
 
 def test_load():
-    """Test load()"""
-    result = subprocess.run(
-        ["python", "main.py", "load"],
-        capture_output=True,
-        text=True,
-        check=True,
-    )
-    assert result.returncode == 0
-    assert "Transforming data..." in result.stdout
+    load_dotenv()
+    load = load_database()
+    with sql.connect(
+        server_hostname=os.getenv("SERVER_HOSTNAME"),
+        http_path="/sql/1.0/warehouses/2d6f41451e6394c0",
+        access_token=os.getenv("DATABRICKS_KEY"),
+    ) as connection:
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT * FROM student_performance")
+            result = cursor.fetchall()
+            cursor.close()
+            connection.close()
+    assert load == "Load Success"
+    assert result is not None
 
 
 def test_query():
-    """Test general query for medical records"""
-    result = subprocess.run(
-        [
-            "python",
-            "main.py",
-            "query",
-            """
-            WITH recent_appointments AS (
-                SELECT 
-                    patient_id, 
-                    name, 
-                    COUNT(*) AS total_appointments,
-                    MAX(last_appointment_date) AS last_appointment
-                FROM MedicalRecords1DB
-                GROUP BY patient_id, name
-            ),
-            combined_data AS (
-                SELECT 
-                    patient_id, 
-                    name, 
-                    total_appointments,
-                    last_appointment
-                FROM recent_appointments
-                UNION ALL
-                SELECT 
-                    patient_id, 
-                    name, 
-                    COUNT(*) AS total_appointments,
-                    MAX(last_appointment_date) AS last_appointment
-                FROM MedicalRecordsOthersDB
-                GROUP BY patient_id, name
-            )
-            SELECT 
-                patient_id, 
-                name, 
-                total_appointments, 
-                last_appointment
-            FROM combined_data
-            ORDER BY total_appointments DESC
-            LIMIT 10;
-            """,
-        ],
-        capture_output=True,
-        text=True,
-        check=True,
-    )
-    assert result.returncode == 0
+    qt = query()
+    complex_query = """
+SELECT
+    s1.ParentalSupport,
+    AVG(s1.ExtracurricularActivities) AS activity,
+    AVG(s1.PreviousGrade) AS previous_grade,
+    AVG(s1.FinalGrade) AS final_grade
+FROM default.student_performance AS s1
+JOIN default.student_performance AS s2
+    USING (Name)
+GROUP BY s1.ParentalSupport
+ORDER BY s1.ParentalSupport DESC;
+"""
 
-test_extract()
-#test_load()
-#test_query()
+    load_dotenv()
+    with sql.connect(
+        server_hostname=os.getenv("SERVER_HOSTNAME"),
+        http_path="/sql/1.0/warehouses/2d6f41451e6394c0",
+        access_token=os.getenv("ACCESS_TOKEN"),
+    ) as connection:
+        with connection.cursor() as cursor:
+            cursor.execute(complex_query)
+            result = cursor.fetchall()
+    assert result is not None
+    assert qt == "Query Success"
+
+
+if __name__ == "__main__":
+    test_extract()
+    test_load()
+    test_query()

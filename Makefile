@@ -2,13 +2,13 @@ install:
 	pip install --upgrade pip &&\
 		pip install -r requirements.txt
 
-lint:
-	ruff check *.py
+test:
+	python -m pytest test_*.py
 
 format:	
 	black *.py 
 
-test:
-	python -m pytest -cov=main test_main.py
-		
-all: install lint format test
+lint:
+	ruff check *.py mylib/*.py
+	
+all: install lint test format
