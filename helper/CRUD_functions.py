@@ -4,11 +4,10 @@ import pandas as pd
 import os
 from databricks import sql
 from dotenv import load_dotenv
-import subprocess
 
 
-def extract(url="https://github.com/syedhumarahim/syedhumarahim-dataset_medical_records/blob/main/medical_records_1.csv",
-    url_2="https://github.com/syedhumarahim/syedhumarahim-dataset_medical_records/blob/main/medical_records_others.csv",
+def extract(url="https://raw.githubusercontent.com/syedhumarahim/syedhumarahim-dataset_medical_records/blob/main/medical_records_1.csv",
+    url_2="https://raw.githubusercontent.com/syedhumarahim/syedhumarahim-dataset_medical_records/blob/main/medical_records_others.csv",
     file_path="data/medical_records_1.csv",
     file_path_2="data/medical_records_others.csv"):
     if not os.path.exists("data"):
