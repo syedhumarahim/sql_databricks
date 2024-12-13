@@ -1,9 +1,9 @@
 from mylib.extract import extract
-# from mylib.transform import load_database
-# from mylib.query import query
-# import os
-# from dotenv import load_dotenv
-# from databricks import sql
+from mylib.transform import load_database
+from mylib.query import query
+import os
+from dotenv import load_dotenv
+from databricks import sql
 
 
 def test_extract():

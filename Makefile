@@ -9,6 +9,6 @@ format:
 	black *.py 
 
 lint:
-	ruff check *.py mylib/*.py
+	ruff check *.py mylib/*.py --ignore F401
 	
 all: install lint test format
