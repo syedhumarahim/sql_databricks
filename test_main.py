@@ -73,6 +73,6 @@ def test_query():
     )
     assert result.returncode == 0
 
-#test_extract()
-test_load()
+test_extract()
+#test_load()
 #test_query()
