@@ -58,5 +58,5 @@ ORDER BY s1.ParentalSupport DESC;
 
 if __name__ == "__main__":
     test_extract()
-    test_load()
-    test_query()
+    #test_load()
+    #test_query()
