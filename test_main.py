@@ -6,6 +6,7 @@ from helper.CRUD_functions import (
     update_record,
     delete_record,
 )
+import subprocess
 
 
 def test_load_medical_database():

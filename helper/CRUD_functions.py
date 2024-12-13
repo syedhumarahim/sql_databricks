@@ -4,6 +4,7 @@ import pandas as pd
 import os
 from databricks import sql
 from dotenv import load_dotenv
+import subprocess
 
 
 def extract(url="https://github.com/syedhumarahim/syedhumarahim-dataset_medical_records/blob/main/medical_records_1.csv",
