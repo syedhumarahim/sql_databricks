@@ -1,12 +1,21 @@
 [![Python 3.11](https://github.com/nogibjj/sqllite/actions/workflows/main.yml/badge.svg)](https://github.com/nogibjj/sqllite/actions/workflows/main.yml)
 
-# Interacting with SQL Database using Python Script
+# Complex SQL Query Project for Medical Records using Databricks
 
-This is the Assignment for Data Engineering on Interacting with SQL Database.
+This project focuses on designing and implementing a complex SQL query on a medical records dataset. The primary goal is to demonstrate the ability to perform advanced SQL operations, including joins, aggregation, and sorting, while integrating the query within a Python-based workflow. The database is hosted on Databricks, and the CI/CD pipeline ensures code quality and smooth deployment.
 
-# Medical Records CRUD Operations with SQLite
+## Key Objectives
 
-This project demonstrates how to perform basic CRUD (Create, Read, Update, Delete) operations on a SQLite database using a Python application. The dataset used contains medical records with fields such as patient ID, name, date of birth, gender, medical conditions, medications, allergies, and last appointment date.
+- **Complex Query Design**: A comprehensive SQL query involving advanced operations such as joins, aggregations, and sorting.
+- **CRUD Operations**: Implement Create, Read, Update, and Delete operations for interacting with the databricks database.
+- **CI/CD Pipeline**: Integrate GitHub Actions to automate testing, linting, and deployment.
+- **Documentation**: Provide clear explanations for the SQL query and the Python workflow.
+
+---
+
+# Medical Records CRUD Operations 
+
+This project demonstrates how to perform basic CRUD (Create, Read, Update, Delete) operations in databricks using a Python application. The dataset used contains medical records with fields such as patient ID, name, date of birth, gender, medical conditions, medications, allergies, and last appointment date.
 
 ## Project Structure
 
@@ -14,7 +23,8 @@ This project demonstrates how to perform basic CRUD (Create, Read, Update, Delet
 ├── .devcontainer/            # DevContainer setup files
 ├── .github/                  # GitHub Actions CI/CD workflows
 ├── data/                     # Contains the CSV data files used to load into the SQLite database
-│   └── medical_records.csv    # Medical records CSV file
+|   ├── medical_records.csv                   # medical records
+│   └── medical_records_others.csv    # Medical records CSV file
 ├── helper/                   # Helper scripts (like utility functions to perform SQL operations)
 ├── CRUD_functions.py          # CRUD operations for database
 ├── .gitignore                # Git ignore file

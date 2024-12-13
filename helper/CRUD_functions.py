@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 
 def extract(url="https://raw.githubusercontent.com/syedhumarahim/syedhumarahim-dataset_medical_records/blob/main/medical_records_1.csv",
     url_2="https://raw.githubusercontent.com/syedhumarahim/syedhumarahim-dataset_medical_records/blob/main/medical_records_others.csv",
-    file_path="data/medical_records_1.csv",
+    file_path="data/medical_records.csv",
     file_path_2="data/medical_records_others.csv"):
     if not os.path.exists("data"):
         os.makedirs("data")
@@ -60,7 +60,7 @@ def query(query):
 
 
 # load the csv file and insert into databricks
-def load(dataset="data/medical_records_1.csv", dataset_2="data/medical_records_others.csv"):
+def load(dataset="data/medical_records.csv", dataset_2="data/medical_records_others.csv"):
     payload = pd.read_csv(dataset, delimiter=",", skiprows=1)
     payload2 = pd.read_csv(dataset_2, delimiter=",", skiprows=1)
     load_dotenv(dotenv_path='.env')
@@ -75,7 +75,7 @@ def load(dataset="data/medical_records_1.csv", dataset_2="data/medical_records_o
         c = connection.cursor()
 
         # Create and load first table
-        c.execute("SHOW TABLES FROM default LIKE 'medical_records_1*'")
+        c.execute("SHOW TABLES FROM default LIKE 'medical_records*'")
         result = c.fetchall()
         if not result:
             c.execute(
