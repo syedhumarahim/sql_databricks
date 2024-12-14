@@ -1,4 +1,4 @@
-[![Python 3.11](https://github.com/nogibjj/sqllite/actions/workflows/main.yml/badge.svg)](https://github.com/nogibjj/sqllite/actions/workflows/main.yml)
+[![SQL Run](https://github.com/syedhumarahim/sql_databricks/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/syedhumarahim/sql_databricks/actions/workflows/main.yml)
 
 # Complex SQL Query Project for Medical Records using Databricks
 
